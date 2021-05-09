@@ -13,6 +13,28 @@ router.get('/', async (req, res) => {
     }
 });
 
+router.param('cartId', async (req, res, next, cartId) => {
+    try {
+        const cart = await Cart.findById(cartId);
+
+        if (!cart) {
+            res.status(404).json({
+                success: false,
+                message: 'cart not found',
+            });
+        }
+
+        req.cart = cart;
+        next();
+    } catch (error) {
+        console.log('error occoured', error);
+        res.status(404).json({
+            success: false,
+            message: 'error finding cart',
+        });
+    }
+});
+
 router.get('/:cartId', async (req, res) => {
     try {
         const { cartId } = req.params;
@@ -53,8 +75,7 @@ router.post('/:cartId', async (req, res) => {
             const products = cart.products.map((product) =>
                 product.productId.toString() === newProduct._id
                     ? {
-                          _id: product._id,
-                          productId: product.productId,
+                          ...product.toObject(),
                           quantity: newProduct.quantity,
                       }
                     : product
@@ -76,7 +97,10 @@ router.post('/:cartId', async (req, res) => {
                 }
             });
 
-            res.status(201).json({ success: true, product: updatedProduct });
+            res.status(201).json({
+                success: true,
+                product: updatedProduct,
+            });
         } else {
             cart.products.push({
                 productId: newProduct._id,

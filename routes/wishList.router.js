@@ -7,6 +7,28 @@ router.get('/', async (req, res) => {
     res.json(wishLists);
 });
 
+router.param('wishListId', async (req, res, next, wishListId) => {
+    try {
+        const wishList = await WishList.findById(wishListId);
+
+        if (!wishList) {
+            res.status(404).json({
+                success: false,
+                message: 'wish list not found',
+            });
+        }
+
+        req.wishList = wishList;
+        next();
+    } catch (error) {
+        console.log('error occoured', error);
+        res.status(404).json({
+            success: false,
+            message: 'error finding wish list',
+        });
+    }
+});
+
 router.get('/:wishListId', async (req, res) => {
     try {
         const { wishListId } = req.params;
