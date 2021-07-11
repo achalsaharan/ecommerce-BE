@@ -3,44 +3,23 @@ const { extend, update } = require('lodash');
 const router = express.Router();
 const { Cart } = require('../models/cart.model');
 
-router.get('/', async (req, res) => {
+router.use(async (req, res, next) => {
     try {
-        const carts = await Cart.find({});
-        res.json(carts);
-    } catch (error) {
-        console.log('error occoured', error);
-        res.json({ error: error.message });
-    }
-});
-
-router.param('cartId', async (req, res, next, cartId) => {
-    try {
-        const cart = await Cart.findById(cartId);
-
-        if (!cart) {
-            res.status(404).json({
-                success: false,
-                message: 'cart not found',
-            });
-        }
-
+        const cartId = req.user.cart;
+        const cart = await Cart.findOne({ _id: cartId }).populate(
+            'products.productId'
+        );
+        // console.log(cart);
         req.cart = cart;
         next();
     } catch (error) {
-        console.log('error occoured', error);
-        res.status(404).json({
-            success: false,
-            message: 'error finding cart',
-        });
+        res.json({ success: false, errorMessage: 'error finding cart' });
     }
 });
 
-router.get('/:cartId', async (req, res) => {
+router.get('/', async (req, res) => {
     try {
-        const { cartId } = req.params;
-        let cart = await Cart.findOne({ _id: cartId }).populate(
-            'products.productId'
-        );
+        const cart = req.cart;
 
         const products = cart.products.map((product) => {
             return {
@@ -58,9 +37,9 @@ router.get('/:cartId', async (req, res) => {
 
 //~desc to add/update a product in the cart, will return the product
 //request body = {_id: "something something", quantity: 1}
-router.post('/:cartId', async (req, res) => {
+router.post('/', async (req, res) => {
     try {
-        const { cartId } = req.params;
+        const cartId = req.user.cart;
         const newProduct = req.body;
         let cart = await Cart.findById(cartId);
 
@@ -129,9 +108,9 @@ router.post('/:cartId', async (req, res) => {
     }
 });
 
-router.delete('/:cartId', async (req, res) => {
+router.delete('/', async (req, res) => {
     try {
-        const { cartId } = req.params;
+        const cartId = req.user.cart;
         const prod = req.body;
 
         let cart = await Cart.findById(cartId);

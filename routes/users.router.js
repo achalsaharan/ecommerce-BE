@@ -5,11 +5,17 @@ const { Cart } = require('../models/cart.model');
 const { WishList } = require('../models/wishList.model');
 const mongoose = require('mongoose');
 const { extend } = require('lodash');
+const bcrypt = require('bcrypt');
 
 router.post('/', async (req, res) => {
     try {
         //making user
         let newUser = req.body;
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(req.body.password, salt);
+
+        newUser.password = hashedPassword;
 
         newUser = extend(newUser, { _id: new mongoose.Types.ObjectId() });
         //making cart

@@ -2,36 +2,23 @@ const express = require('express');
 const router = express.Router();
 const { WishList } = require('../models/wishList.model');
 
-router.get('/', async (req, res) => {
-    let wishLists = await WishList.find({}).populate('products');
-    res.json(wishLists);
-});
-
-router.param('wishListId', async (req, res, next, wishListId) => {
+router.use(async (req, res, next) => {
     try {
-        const wishList = await WishList.findById(wishListId);
-
-        if (!wishList) {
-            res.status(404).json({
-                success: false,
-                message: 'wish list not found',
-            });
-        }
-
+        const wishListId = req.user.wishList;
+        const wishList = await WishList.findById(wishListId).populate(
+            'products'
+        );
         req.wishList = wishList;
+        console.log('wishlist ID....', req.user.wishList);
         next();
     } catch (error) {
-        console.log('error occoured', error);
-        res.status(404).json({
-            success: false,
-            message: 'error finding wish list',
-        });
+        res.json({ success: false, errorMessage: 'error finding wishList' });
     }
 });
 
-router.get('/:wishListId', async (req, res) => {
+router.get('/', async (req, res) => {
     try {
-        const { wishListId } = req.params;
+        const wishListId = req.user.wishList;
         const wishList = await WishList.findById(wishListId).populate(
             'products'
         );
@@ -43,8 +30,8 @@ router.get('/:wishListId', async (req, res) => {
     }
 });
 
-router.post('/:wishListId', async (req, res) => {
-    const { wishListId } = req.params;
+router.post('/', async (req, res) => {
+    const wishListId = req.user.wishList;
     const newProduct = req.body;
     const wishList = await WishList.findById(wishListId);
 
@@ -76,9 +63,9 @@ router.post('/:wishListId', async (req, res) => {
     }
 });
 
-router.delete('/:wishListId', async (req, res) => {
+router.delete('/', async (req, res) => {
     try {
-        const { wishListId } = req.params;
+        const wishListId = req.user.wishList;
         const delProduct = req.body;
 
         const wishList = await WishList.findById(wishListId);

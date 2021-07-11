@@ -19,14 +19,6 @@ const ProductSchema = new mongoose.Schema(
             type: mongoose.SchemaTypes.Url,
         },
 
-        material: {
-            type: String,
-        },
-
-        brand: {
-            type: String,
-        },
-
         inStock: {
             type: Boolean,
         },
@@ -43,19 +35,13 @@ const ProductSchema = new mongoose.Schema(
             type: Number,
         },
 
-        offer: {
-            type: String,
-        },
-
-        idealFor: {
-            type: String,
-        },
-
         level: {
             type: String,
         },
 
-        color: {
+        description: [String],
+
+        category: {
             type: String,
         },
     },
