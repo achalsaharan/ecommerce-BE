@@ -28,12 +28,12 @@ app.get('/', (req, res) => {
 });
 
 // routes
-app.use('/populateDB', populateDB);
+// app.use('/populateDB', populateDB);
 app.use('/products', products);
 app.use('/users', users);
+app.use('/auth', auth);
 app.use('/carts', authVerify, carts);
 app.use('/wishlists', authVerify, wishList);
-app.use('/auth', auth);
 
 // 404 route handler
 app.use(routeNotFoundHandler);
