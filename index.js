@@ -24,7 +24,7 @@ app.use(cors());
 app.use(express.json());
 
 app.get('/', (req, res) => {
-    res.send('Ecommerce Backend');
+    res.send('Electro Hub backend, developed by Achal Saharan');
 });
 
 // routes
